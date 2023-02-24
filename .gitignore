@@ -1,0 +1,12 @@
+# dirs
+Intermediate
+Binaries
+Saved
+
+# media
+*.png
+
+# UE assets
+/Content/**/*.uasset
+*.umap
+Plugins/Developer

@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Universal3DGameKit",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "Story66",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Universal3DGameKit",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
