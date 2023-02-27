@@ -7,7 +7,7 @@
 #include "Weapon/PolyWeaponHolderInterface.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/Character.h"
-#include "Interaction/GKInteractionAgentInterface.h"
+#include "Interaction/InteractionAgentInterface.h"
 #include "PolyCharacterBase.generated.h"
 
 class UInputMappingContext;
@@ -67,7 +67,7 @@ struct FPolyMovementData
  * 主要处理血量、移动相关逻辑。
  */
 UCLASS()
-class POLYSHOOTER_API APolyCharacterBase : public ACharacter, public IPolyWeaponHolderInterface, public IGKInteractionAgentInterface
+class POLYSHOOTER_API APolyCharacterBase : public ACharacter, public IPolyWeaponHolderInterface, public IInteractionAgentInterface
 {
 private:
 	GENERATED_BODY()
@@ -224,8 +224,8 @@ public:
 	//~ IWeaponHolderInterface
 	virtual UPolyWeaponComp* GetWeaponComp() const override;
 
-	//~ IGKInteractionAgentInterface
-	virtual IGKInteractionCompInterface* GetInteractionComp() const override;
+	//~ IInteractionAgentInterface
+	virtual IInteractionCompInterface* GetInteractionComp() const override;
 
 	/** 按下冲刺时，执行冲刺操作。 */
 	void CheckSprintInput(float DeltaTime);

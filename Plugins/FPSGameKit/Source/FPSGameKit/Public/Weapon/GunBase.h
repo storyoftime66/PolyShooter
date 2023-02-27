@@ -16,7 +16,6 @@ class UGunComp;
 class UNiagaraSystem;
 class UNiagaraComponent;
 class USphereComponent;
-class APolyProjectileBase;
 
 /**
  * 武器射击模式
@@ -194,33 +193,33 @@ struct FGunAnimPack
 
 	///////////////////////////////////////////////////////////////
 	/// 武器动画
-	/** 武器射击动画，射击音效、枪口火焰特效放动画通知 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	/** 【必需】武器射击动画，射击音效、枪口火焰特效放动画通知 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* FireMontage;
-	/** 武器装弹动画，音效放动画通知 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	/** 【必需】武器装弹动画，音效放动画通知 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* ReloadMontage;
 	/** 武器空仓装弹动画，音效放动画通知 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* ReloadMontage_Empty;
 	/** 武器装备动画，音效放动画通知 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* EquipMontage;
-	/** 瞄准时武器射击动画，射击音效、枪口火焰特效放在动画通知中 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	/** 【必需】瞄准时武器射击动画，射击音效、枪口火焰特效放在动画通知中 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* AdsFireMontage;
 	/** 检查武器动画 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UAnimMontage* InspectMontage;
 
 	///////////////////////////////////////////////////////////////
 	/// 射击特效
 	/// Note: 枪口火焰特效需要放在 FireMontage 中。
 	/** 子弹轨迹特效，Niagara版本 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UNiagaraSystem* TrailFX_NG;
 	/** 击中特效，Niagara版本 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Animation")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Animation")
 	UNiagaraSystem* ImpactFX_NG;
 };
 
@@ -294,7 +293,9 @@ private:
 
 	/** 动画相关 */
 	UPROPERTY()
-	UAnimInstance* GunAnimInstance;
+	UAnimInstance* FPGunAnimInstance;
+	UPROPERTY()
+	UAnimInstance* TPGunAnimInstance;
 	UPROPERTY()
 	FGunAnimPack GunAnimPack;
 	UPROPERTY()
@@ -303,9 +304,9 @@ private:
 	////////////////////////////////////////////
 	// 枪械属性
 	/** 枪械数据所在的表格 */
-	UPROPERTY(EditDefaultsOnly, Category="PolyShooter|Weapon")
+	UPROPERTY(EditDefaultsOnly, Category="FPS Game Kit|Gun")
 	UDataTable* GunTable;
-	UPROPERTY(EditDefaultsOnly, Category="PolyShooter|Weapon")
+	UPROPERTY(EditDefaultsOnly, Category="FPS Game Kit|Gun")
 	FName RowName;
 
 	/** 枪械状态 */
@@ -406,6 +407,18 @@ protected:
 	void LineTrace(FHitResult& Hit) const;
 
 	void SetGunState(EGunState NewGunState);
+
+	void LocallyPlayMontage(UAnimMontage* Montage) const
+	{
+		if (FPGunAnimInstance)
+		{
+			FPGunAnimInstance->Montage_Play(Montage);
+		}
+		if (TPGunAnimInstance)
+		{
+			TPGunAnimInstance->Montage_Play(Montage);
+		}
+	}
 #pragma endregion
 
 #pragma region GUN_ACTION
@@ -496,7 +509,7 @@ public:
 
 	virtual bool CanRetract() const override
 	{
-		return GunState != EGunState::Reloading or GunState != EGunState::Retracted;
+		return GunState != EGunState::Reloading and GunState != EGunState::Retracted;
 	}
 
 	virtual void SetAds(bool NewADS) override
@@ -520,10 +533,8 @@ public:
 	virtual bool GetAds() const override { return bADS; }
 	virtual FAdsInfo GetAdsInfo() const override { return AdsInfo; }
 
-	virtual FCharAnimPack GetCharAnimPack() const override { return CharAnimPack; }
-
-	virtual void PlayAnimMontageOnlyLocally(UAnimMontage*) override;
-
+	virtual FCharAnimPack GetAnimPack() const override { return CharAnimPack; }
+	
 	// 读取属性，TODO：移除部分方法
 	FORCEINLINE EGunFireMode GetFireMode() const { return GunAttributes.FireMode; }
 

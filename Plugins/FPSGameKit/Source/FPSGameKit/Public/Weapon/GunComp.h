@@ -43,7 +43,7 @@ private:
 	UAnimInstance* CharFPAnimInstance;
 	UPROPERTY()
 	UAnimInstance* CharTPAnimInstance;
-	UPROPERTY(EditAnywhere, Category="PolyShooter|WeaponComp")
+	UPROPERTY(EditAnywhere, Category="FPS Game Kit|GunComp")
 	FName GunGripSocket = FName("GripPoint");
 	// 相机组件和移动组件引用，用于修改FOV、修改移动速度等
 	UPROPERTY()
@@ -82,7 +82,7 @@ private:
 	////////////////////////////////////////////////
 	/// 内部变量
 	/** 空手时的角色动画 */
-	UPROPERTY(EditDefaultsOnly, Category="PolyShooter|WeaponComp")
+	UPROPERTY(EditDefaultsOnly, Category="FPS Game Kit|Gun")
 	FCharAnimPack HandAnimPack;
 
 public:
@@ -218,6 +218,7 @@ public:
 
 		return GunInventory[CurrentGunIndex];
 	}
+	virtual FCharAnimPack BP_GetCharAnimPack() const override;
 
 	/** 武器操作，通常直接绑定输入 */
 	virtual void FirePressed() override;
@@ -278,14 +279,14 @@ public:
 	////////////////////////////////////////////////
 	// 动画蓝图相关
 	/** 获取左手IK骨骼控件位置 */
-	UFUNCTION(BlueprintCallable, Category="PolyShooter|Animation")
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp|Animation")
 	FTransform GetLeftHandIKTransform() const;
 	/** 获取左手IK世界场景位置 */
-	UFUNCTION(BlueprintCallable, Category="PolyShooter|Animation")
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp|Animation")
 	FTransform GetLeftHandIKWorldTransform() const;
 
 	/** 获取角色动画包 */
-	UFUNCTION(BlueprintCallable, Category="PolyShooter|Animation")
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp|Animation")
 	FCharAnimPack GetAnimPack() const { return AnimPack; }
 
 #if WITH_EDITOR

@@ -62,6 +62,9 @@ public:
 	/** 获取当前武器 */
 	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp")
 	virtual AActor* GetCurrentGun() const = 0;
+	/** 获取角色动画包 */
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp")
+	virtual FCharAnimPack BP_GetCharAnimPack() const;
 
 	/** 枪械操作，通常直接绑定输入 */
 	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|GunComp|Input")

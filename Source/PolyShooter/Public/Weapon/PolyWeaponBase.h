@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Actor.h"
-#include "Interaction/GKInteractiveInterface.h"
+#include "Interaction/InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "PolyWeaponBase.generated.h"
 
@@ -282,7 +282,7 @@ struct FCharFPSAnimationPack
  * - 武器在被拾起前会自行处理交互功能相关逻辑。@see IInteractiveInterface
  */
 UCLASS(Abstract)
-class POLYSHOOTER_API APolyWeaponBase : public AActor, public IGKInteractiveInterface
+class POLYSHOOTER_API APolyWeaponBase : public AActor, public IInteractiveInterface
 {
 	GENERATED_BODY()
 

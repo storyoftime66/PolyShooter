@@ -63,7 +63,7 @@ void UGunComp::OnRep_CurrentGunIndex()
 	{
 		if (CurrentGunCache)
 		{
-			AnimPack = CurrentGunCache->GetCharAnimPack();
+			AnimPack = CurrentGunCache->GetAnimPack();
 			AdsInfoCache = CurrentGunCache->GetAdsInfo();
 		}
 
@@ -245,6 +245,15 @@ void UGunComp::SetEnableCameraEffect(bool NewEnable)
 void UGunComp::SetEnableMovementEffect(bool NewEnable)
 {
 	// TODO
+}
+
+FCharAnimPack UGunComp::BP_GetCharAnimPack() const
+{
+	if (IsArmed())
+	{
+		return CurrentGunCache->GetAnimPack();
+	}
+	return HandAnimPack;
 }
 
 void UGunComp::FirePressed()

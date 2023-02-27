@@ -51,55 +51,58 @@ struct FAdsInfo
 };
 
 /**
- * 枪械相关的角色动画包，被装备时会被WeaponComp获取使用。
+ * 枪械相关的角色动画包，被装备时会被GunComp获取使用。
  */
 USTRUCT(BlueprintType)
 struct FCharAnimPack
 {
 	GENERATED_BODY()
 
-	/** 第一人称模型正常状态下的枪械位置 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 【必需】第一人称模型正常状态下的枪械位置 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	FTransform FPOriginalTransform;
-	/** 第一人称下，瞄准状态下的枪械位置 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 【必需】第一人称下，瞄准状态下的枪械位置 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	FTransform FPAimingTransform;
 
 	////////////////////////////////
 	/// 武器使用相关动画蒙太奇
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* FireMontage;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* ReloadMontage;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* ReloadMontage_Empty;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* EquipMontage;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* InspectMontage;
 
 	////////////////////////////////
 	/// 武器瞄准相关动画和蒙太奇
-	/** 非瞄准时基础姿势，通常只有一帧，需要根据动画蓝图进行混入和混出 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
-	UAnimMontage* BasePose;
-	/** 瞄准时的基础姿势，通常只有一帧，需要根据动画蓝图进行混入和混出 */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
-	UAnimMontage* AdsBasePose;
-	/** 抬起武器蒙太奇，基础姿势为BasePose */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 【必需】非瞄准时基础姿势，通常只有一帧 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
+	UAnimSequence* BasePose;
+	/** 【必需】瞄准时的基础姿势，通常只有一帧 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
+	UAnimSequence* AdsBasePose;
+	/** 抬起武器蒙太奇，基础姿势需设为AdsBasePose，可以让瞄准转换更流畅*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* AdsUpMontage;
-	/** 放下武器蒙太奇，基础姿势为AdsBasePose */
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 放下武器蒙太奇，基础姿势需设为BasePose，可以让瞄准转换更流畅 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* AdsDownMontage;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 【必需】瞄准时的射击蒙太奇 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimMontage* AdsFireMontage;
 
 	////////////////////////////////
-	/// 角色部分移动相关动画（通常只用上半身）
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/// 角色部分移动相关动画
+	/** 【必需】持枪时角色行走动画 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimSequence* WalkAnimation;
-	UPROPERTY(EditAnywhere, Category="FPS Game Kit|Gun|Char Animations")
+	/** 【必需】持枪时角色冲刺动画 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="FPS Game Kit|Gun|Char Animations")
 	UAnimSequence* SprintAnimation;
 	
 	// /** 滑行持续时的动画 TODO: 这部分应该放到移动组件里面的 */
@@ -159,13 +162,14 @@ public:
 	/////////////////////////////////////////////
 	/// 瞄准操作
 	virtual void SetAds(bool) = 0;
+
+	/** 当前是否处于瞄准状态 */
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|Gun")
 	virtual bool GetAds() const = 0;
 	virtual FAdsInfo GetAdsInfo() const = 0;
 
 	/////////////////////////////////////////////
 	/// 使用者动画
-	virtual FCharAnimPack GetCharAnimPack() const = 0;
-
-	/** 仅在玩家本地播放动画，用于实现一些非玩法功能，如检视武器 */
-	virtual void PlayAnimMontageOnlyLocally(UAnimMontage*);
+	UFUNCTION(BlueprintCallable, Category="FPS Game Kit|Gun|Animations")
+	virtual FCharAnimPack GetAnimPack() const = 0;
 };

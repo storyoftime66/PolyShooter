@@ -44,12 +44,14 @@ AGunBase::AGunBase()
 		GunFPMesh->SetOnlyOwnerSee(true);
 		GunFPMesh->SetCollisionProfileName(FName("NoCollision"));
 		GunFPMesh->CastShadow = false;
+		// GunFPMesh->PrimaryComponentTick.bCanEverTick = false;
 	}
 	if (GunTPMesh)
 	{
 		GunTPMesh->SetupAttachment(RootComponent);
 		GunTPMesh->SetOwnerNoSee(true);
 		GunTPMesh->SetCollisionProfileName(FName("NoCollision"));
+		// GunTPMesh->PrimaryComponentTick.bCanEverTick = false;
 	}
 }
 
@@ -107,7 +109,7 @@ void AGunBase::InitializeGunData()
 		AmmoInClip = GunAttributes.AmmoPerClip;
 		AmmoInBackup = GunAttributes.AmmoPerClip * 2; // TODO: 初始子弹数待定
 	}
-	
+
 	AdsInfo = GunTableRow->AdsInfo;
 	GunAnimPack = GunTableRow->GunAnimPack;
 	CharAnimPack = GunTableRow->CharAnimPack;
@@ -120,7 +122,14 @@ void AGunBase::OnRep_GunComp()
 	if (GunComp)
 	{
 		GunHolder = GunComp->GetOwner();
-		GunAnimInstance = GetMesh()->GetAnimInstance();
+		if (GunFPMesh and IsHolderLocallyControlled())
+		{
+			FPGunAnimInstance = GunFPMesh->GetAnimInstance();
+		}
+		if (GunTPMesh)
+		{
+			TPGunAnimInstance = GunTPMesh->GetAnimInstance();
+		}
 		IGunCompInterface* IGunComp = Cast<IGunCompInterface>(GunComp);
 		AttachToActor(GunHolder, FAttachmentTransformRules::KeepRelativeTransform);
 		if (IGunComp)
@@ -544,12 +553,9 @@ void AGunBase::SimulateFiring() const
 	}
 
 	// 播放Montage（音效、MuzzleFlash特效在动画通知中设置）
-	if (GunAnimInstance)
-	{
-		GunAnimInstance->Montage_Play(GunAnimPack.FireMontage);
-		// 通知GunComp播放动画
-		Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateFiring);
-	}
+	LocallyPlayMontage(GunAnimPack.FireMontage);
+	// 通知GunComp播放动画
+	Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateFiring);
 
 	// 短距离击中目标时的命中特效
 	FHitResult Hit;
@@ -572,17 +578,15 @@ void AGunBase::SimulateReloading() const
 {
 	check(GunComp and GunComp->GetClass()->ImplementsInterface(UGunCompInterface::StaticClass()));
 
-	if (GunAnimInstance)
-	{
-		UAnimMontage* MontageToPlay = GunAnimPack.ReloadMontage;
-		if (AmmoInClip == 0 and GunAnimPack.ReloadMontage_Empty)
-		{
-			MontageToPlay = GunAnimPack.ReloadMontage_Empty;
-		}
 
-		GunAnimInstance->Montage_Play(MontageToPlay);
-		Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateReloading);
+	UAnimMontage* MontageToPlay = GunAnimPack.ReloadMontage;
+	if (AmmoInClip == 0 and GunAnimPack.ReloadMontage_Empty)
+	{
+		MontageToPlay = GunAnimPack.ReloadMontage_Empty;
 	}
+	LocallyPlayMontage(MontageToPlay);
+
+	Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateReloading);
 }
 
 void AGunBase::SimulateEquipping()
@@ -590,11 +594,9 @@ void AGunBase::SimulateEquipping()
 	check(GunComp and GunComp->GetClass()->ImplementsInterface(UGunCompInterface::StaticClass()));
 
 	SetActorHiddenInGame(false);
-	if (GunAnimInstance)
-	{
-		GunAnimInstance->Montage_Play(GunAnimPack.EquipMontage);
-		Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateEquipping);
-	}
+
+	LocallyPlayMontage(GunAnimPack.EquipMontage);
+	Cast<IGunCompInterface>(GunComp)->NotifyCompGunEvent(EGunEvent::Event_SimulateEquipping);
 }
 
 void AGunBase::SimulateUnequipping()
@@ -606,10 +608,7 @@ void AGunBase::SimulateInspecting() const
 {
 	check(GunComp);
 
-	if (GunAnimInstance)
-	{
-		GunAnimInstance->Montage_Play(GunAnimPack.InspectMontage);
-	}
+	LocallyPlayMontage(GunAnimPack.InspectMontage);
 }
 
 // void AGunBase::PickedUp_Implementation(UGunComp* NewGunComp)
@@ -686,13 +685,3 @@ void AGunBase::SimulateInspecting() const
 // void AGunBase::PickedUp_Implementation(IGunCompInterface* NewHolder)
 // {
 // }
-
-void AGunBase::PlayAnimMontageOnlyLocally(UAnimMontage* Montage)
-{
-	check(IsHolderLocallyControlled());
-
-	if (GunAnimInstance)
-	{
-		GunAnimInstance->Montage_Play(Montage);
-	}
-}

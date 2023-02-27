@@ -13,8 +13,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Components/SphereComponent.h"
-#include "Interaction/GKInteractionAgentInterface.h"
-#include "Interaction/GKInteractionCompInterface.h"
+#include "Interaction/InteractionAgentInterface.h"
+#include "Interaction/InteractionCompInterface.h"
 #include "Weapon/PolyWeaponComp.h"
 #include "Weapon/PolyProjectileBase.h"
 
@@ -203,7 +203,7 @@ void APolyWeaponBase::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 	
-	if (IGKInteractionAgentInterface* InteractionAgent = Cast<IGKInteractionAgentInterface>(OtherActor))
+	if (IInteractionAgentInterface* InteractionAgent = Cast<IInteractionAgentInterface>(OtherActor))
 	{
 		if (InteractionAgent->GetInteractionComp())
 		{
@@ -215,7 +215,7 @@ void APolyWeaponBase::NotifyActorBeginOverlap(AActor* OtherActor)
 void APolyWeaponBase::NotifyActorEndOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorEndOverlap(OtherActor);
-	if (IGKInteractionAgentInterface* InteractionAgent = Cast<IGKInteractionAgentInterface>(OtherActor))
+	if (IInteractionAgentInterface* InteractionAgent = Cast<IInteractionAgentInterface>(OtherActor))
 	{
 		if (InteractionAgent->GetInteractionComp())
 		{
@@ -511,7 +511,7 @@ void APolyWeaponBase::UnEquipped()
 
 bool APolyWeaponBase::Interacted(AActor* InteractionCompOwner)
 {
-	const bool bCanInteract = IGKInteractiveInterface::Interacted(InteractionCompOwner);
+	const bool bCanInteract = IInteractiveInterface::Interacted(InteractionCompOwner);
 	if (bCanInteract)
 	{
 		if (const IPolyWeaponHolderInterface* WeaponHolder = Cast<IPolyWeaponHolderInterface>(InteractionCompOwner))

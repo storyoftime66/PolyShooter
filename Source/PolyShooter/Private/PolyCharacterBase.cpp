@@ -8,7 +8,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Interaction/GKInteractionComp.h"
+#include "Interaction/InteractionComp.h"
 #include "Weapon/PolyWeaponSwayComp.h"
 
 
@@ -521,9 +521,9 @@ UPolyWeaponComp* APolyCharacterBase::GetWeaponComp() const
 	return WeaponComp;
 }
 
-IGKInteractionCompInterface* APolyCharacterBase::GetInteractionComp() const
+IInteractionCompInterface* APolyCharacterBase::GetInteractionComp() const
 {
-	return Cast<IGKInteractionCompInterface>(InteractionComp);
+	return Cast<IInteractionCompInterface>(InteractionComp);
 }
 
 void APolyCharacterBase::ServerUpdateMovementData_Implementation(const EPolyMovementState NewMovementState)
