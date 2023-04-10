@@ -1,12 +1,11 @@
-# dirs
+# UE build files
 Intermediate
 Binaries
 Saved
-
-# media
-*.png
-
-# UE assets
-/Content/**/*.uasset
-*.umap
+Build
+DerivedDataCache
 Plugins/Developer
+
+# IDE
+.idea
+*.xcworkspace

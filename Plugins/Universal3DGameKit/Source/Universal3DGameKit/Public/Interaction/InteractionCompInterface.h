@@ -26,7 +26,7 @@ public:
 	virtual void Interact() = 0;
 	
 	/** 使得 Agent 可与 Object 交互 */
-	virtual void EnterInteractiveItems(UObject* InteractiveObject) = 0;
+	virtual void EnterInteractiveItems(AActor* InteractiveActor) = 0;
 	/** 禁止 Agent 与 Object 交互 */
-	virtual void ExitInteractiveItems(UObject* InteractiveObject) = 0;
+	virtual void ExitInteractiveItems(AActor* InteractiveActor) = 0;
 };

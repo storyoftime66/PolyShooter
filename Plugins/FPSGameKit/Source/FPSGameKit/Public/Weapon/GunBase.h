@@ -304,7 +304,7 @@ private:
 	////////////////////////////////////////////
 	// 枪械属性
 	/** 枪械数据所在的表格 */
-	UPROPERTY(EditDefaultsOnly, Category="FPS Game Kit|Gun")
+	UPROPERTY(EditDefaultsOnly, NoClear, Category="FPS Game Kit|Gun")
 	UDataTable* GunTable;
 	UPROPERTY(EditDefaultsOnly, Category="FPS Game Kit|Gun")
 	FName RowName;

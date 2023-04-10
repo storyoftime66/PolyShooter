@@ -20,7 +20,7 @@ APolyCharacterBase::APolyCharacterBase()
 
 	// 武器与交互组件
 	WeaponComp = CreateDefaultSubobject<UPolyWeaponComp>(TEXT("WeaponComp"));
-	InteractionComp = CreateDefaultSubobject<UGKInteractionComp>(TEXT("InteractionComp"));
+	InteractionComp = CreateDefaultSubobject<UInteractionComp>(TEXT("InteractionComp"));
 
 	// 弹簧臂、镜头
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -427,7 +427,7 @@ void APolyCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		{
 			if (IA_InteractAction)
 			{
-				EnhancedInputComponent->BindAction(IA_InteractAction, ETriggerEvent::Started, InteractionComp, &UGKInteractionComp::Interact);
+				EnhancedInputComponent->BindAction(IA_InteractAction, ETriggerEvent::Started, InteractionComp, &UInteractionComp::Interact);
 			}
 		}
 	}

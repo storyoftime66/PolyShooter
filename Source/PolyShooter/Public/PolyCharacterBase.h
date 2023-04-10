@@ -15,7 +15,7 @@ struct FInputActionValue;
 class UInputAction;
 class USpringArmComponent;
 class UPolyWeaponSwayComp;
-class UGKInteractionComp;
+class UInteractionComp;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHitPointChanged, float CurrentHitPoints, float MaxHitPoints);
 
 
@@ -95,7 +95,7 @@ private:
 	////////////////////////////////////////////////////////
 	// 交互系统
 	UPROPERTY(EditAnywhere, Category="Components")
-	UGKInteractionComp* InteractionComp;
+	UInteractionComp* InteractionComp;
 
 	////////////////////////////////////////////////////////
 	// 角色状态

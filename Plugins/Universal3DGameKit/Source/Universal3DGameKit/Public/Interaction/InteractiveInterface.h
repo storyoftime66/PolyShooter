@@ -16,7 +16,7 @@ class UInteractiveInterface : public UInterface
 /**
  * 可交互物接口。
  * 可交互物品如：按钮、拾取物等需要实现这个接口。
- * 使用可交互物品的角色需要带InteractionComp，@see UGKInteractionComp
+ * 使用可交互物品的角色需要带InteractionComp，@see UInteractionComp
  */
 class UNIVERSAL3DGAMEKIT_API IInteractiveInterface
 {

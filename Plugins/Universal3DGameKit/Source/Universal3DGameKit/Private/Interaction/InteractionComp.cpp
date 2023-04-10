@@ -5,61 +5,124 @@
 #include "Interaction/InteractiveInterface.h"
 
 // Sets default values for this component's properties
-UGKInteractionComp::UGKInteractionComp()
+UInteractionComp::UInteractionComp()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bAllowTickOnDedicatedServer = false;
 	SetIsReplicatedByDefault(true);
 
 	// 默认交互范围
 	SphereRadius = 200.0f;
 }
 
-// void UGKInteractionComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-// {
-// 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-// }
+void UInteractionComp::InitializeComponent()
+{
+	Super::InitializeComponent();
 
-void UGKInteractionComp::Interact()
+	if (bUseTraceMode)
+	{
+		SetComponentTickEnabled(true);
+		SetCollisionProfileName(FName("NoCollision"));
+	}
+	else
+	{
+		SphereRadius = InteractionRange;
+		SetComponentTickEnabled(false);
+	}
+
+	const UObject* CurrentObject = GetOuter();
+	while (CurrentObject)
+	{
+		const AActor* IgnoreActor = Cast<AActor>(CurrentObject);
+		if (IgnoreActor)
+		{
+			IgnoredActors.Add(IgnoreActor);
+			break;
+		}
+		CurrentObject = CurrentObject->GetOuter();
+	}
+}
+
+void UInteractionComp::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void UInteractionComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (bUseTraceMode)
+	{
+		TraceInteractiveItem();
+	}
+}
+
+void UInteractionComp::Interact()
 {
 	ServerInteract();
 }
 
-void UGKInteractionComp::ServerInteract_Implementation()
+void UInteractionComp::ServerInteract_Implementation()
 {
 	InteractFirstItem();
 }
 
-bool UGKInteractionComp::InteractFirstItem()
+bool UInteractionComp::InteractFirstItem()
 {
 	check(GetOwnerRole() == ROLE_Authority);
 
 	if (InteractiveItems.Num() > 0)
 	{
-		IInteractiveInterface* FirstItem = InteractiveItems[0];
-		InteractiveItems[0]->Interacted(GetOwner());
-		// Note: 多数可拾取物被拾取后会消失或禁用碰撞，会自动移除InteractiveProps列表中的引用
+		AActor* FirstItem = InteractiveItems[0];
+		IInteractiveInterface* FirstInteractiveItem = Cast<IInteractiveInterface>(FirstItem);
+		FirstInteractiveItem->Interacted(GetOwner());
+		// Note: 多数可拾取物被拾取后会消失或禁用碰撞，会自动移除InteractiveItems列表中的引用
 		InteractiveItems.Remove(FirstItem);
-
 		return true;
 	}
 
 	return false;
 }
 
-void UGKInteractionComp::EnterInteractiveItems(UObject* InteractiveObject)
+void UInteractionComp::TraceInteractiveItem()
 {
-	IInteractiveInterface* InteractiveItem = Cast<IInteractiveInterface>(InteractiveObject);
-	if (InteractiveItem)
+	check(GetOwner());
+	check(GetWorld());
+
+	FVector CamLoc;
+	FRotator CamRot;
+	GetOwner()->GetActorEyesViewPoint(CamLoc, CamRot);
+	const FVector TraceEnd = CamLoc + CamRot.Vector() * InteractionRange;
+
+	FHitResult OutHit;
+
+	// 下面代码修改自 UKismetSystemLibrary::SphereTraceSingle
+	FCollisionQueryParams Params(true);
+	Params.bReturnPhysicalMaterial = false;
+	Params.bReturnFaceIndex = false;
+	Params.AddIgnoredActors(IgnoredActors);
+
+	bool bHit = GetWorld()->SweepSingleByChannel(
+		OutHit, CamLoc, TraceEnd, FQuat::Identity, ECC_Visibility,
+		FCollisionShape::MakeSphere(TraceScale), Params);
+	if (bHit)
 	{
-		InteractiveItems.AddUnique(InteractiveItem);
+		HitActorCache = Cast<IInteractiveInterface>(OutHit.GetActor());
 	}
 }
 
-void UGKInteractionComp::ExitInteractiveItems(UObject* InteractiveObject)
+void UInteractionComp::EnterInteractiveItems(AActor* InteractiveActor)
 {
-	IInteractiveInterface* InteractiveItem = Cast<IInteractiveInterface>(InteractiveObject);
-	if (InteractiveItem)
+	if (InteractiveActor and InteractiveActor->Implements<UInteractiveInterface>())
 	{
-		InteractiveItems.Remove(InteractiveItem);
+		InteractiveItems.AddUnique(InteractiveActor);
+	}
+}
+
+void UInteractionComp::ExitInteractiveItems(AActor* InteractiveActor)
+{
+	if (InteractiveActor and InteractiveItems.Contains(InteractiveActor))
+	{
+		InteractiveItems.Remove(InteractiveActor);
 	}
 }
